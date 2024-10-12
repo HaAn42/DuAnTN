@@ -15,12 +15,12 @@ const Splash = ({ navigation }) => {
             </Text>
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('Register')}
+                onPress={() => navigation.navigate('Login')} // Sửa ở đây
             >
                 <Text style={styles.buttonText}>Bắt đầu</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.registerContainer}>
-                <Text style={styles.registerText}>
+                <Text>
                     Chuyển đến trang đăng ký
                 </Text>
                 <Icon name='arrow-circle-right' size={20} style={styles.icon} />
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#14AB87',
-        borderRadius: 5,
+        borderRadius: 10,
         marginBottom: 20,
     },
     buttonText: {
@@ -74,10 +74,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: 20,
-    },
-    registerText: {
-        fontSize: 16,
-        textDecorationLine: 'underline',
     },
     icon: {
         marginLeft: 5,

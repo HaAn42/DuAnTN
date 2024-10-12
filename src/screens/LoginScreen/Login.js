@@ -10,7 +10,6 @@ import {
 import React, {useState} from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 import CusttomTextInput from '../../components/CusttomTextInput';
-import { navigate } from './../../../node_modules/@react-navigation/routers/src/CommonActions';
 
 const Login = ({ navigation }) => {
   const [isPasswordVisible, setPasswordVisible]=useState(false);
@@ -95,21 +94,21 @@ const Login = ({ navigation }) => {
             </View>
             <View>
               {/**quen mat khau */}
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=> navigation.navigate('ChangePassword')}>
                 <Text style={{color: '#FF622E'}}>Quên mật khẩu!</Text>
               </TouchableOpacity>
             </View>
           </View>
           <View style={styles.itemButton}>
             {/** button dang nhap */}
-            <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate('Register')}>
+            <TouchableOpacity style={styles.button}>
               <Text style={{fontSize: 25, color: 'white',}}>Đăng nhập</Text>
             </TouchableOpacity>
 
             {/**buttonText dang ky */}
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
               <Text>Nếu chưa có tài khoản!</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=> navigation.navigate('Register')}>
                 <Text style={{color: 'blue'}}> Đăng ký</Text>
               </TouchableOpacity>
             </View>

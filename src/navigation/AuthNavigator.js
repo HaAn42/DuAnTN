@@ -6,6 +6,7 @@ import Login from '../screens/LoginScreen/Login'
 import Register from '../screens/RegisterScreen/Register'
 import Splash from '../screens/Splash/splash'
 import ChangePasswordScreen from '../screens/ChangePasswordScreenChangePasswordScreen/ChangePasswordScreen'
+import Home from './../HomeScreen/Home';
 
 const AuthNavigator = () => {
     const Stack = createNativeStackNavigator()
@@ -16,6 +17,7 @@ const AuthNavigator = () => {
             <Stack.Screen name="Login" component={Login} options={{headerShown:false}}/>
             <Stack.Screen name="Register" component={Register} options={{headerShown:false}}/>
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{headerShown:false}}/>
+            <Stack.Screen name="Home" component={Home} options={{headerShown:false}}/>
         </Stack.Navigator>
        </NavigationContainer>
     )

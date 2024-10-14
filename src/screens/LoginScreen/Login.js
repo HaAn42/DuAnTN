@@ -101,7 +101,7 @@ const Login = ({ navigation }) => {
           </View>
           <View style={styles.itemButton}>
             {/** button dang nhap */}
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate('Home')}>
               <Text style={{fontSize: 25, color: 'white',}}>Đăng nhập</Text>
             </TouchableOpacity>
 

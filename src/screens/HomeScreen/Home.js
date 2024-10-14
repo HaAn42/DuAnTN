@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import axios from 'axios'; // Thêm Axios
 import Icon from 'react-native-vector-icons/Ionicons';
-import ProductItem from '../components/ProductItem';
+import ProductItem from '../../components/ProductItem';
+
 
 const Home = () => {
   const [products, setProducts] = useState([]); // Khởi tạo state cho sản phẩm
@@ -20,7 +21,7 @@ const Home = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://your-api-url/api/products'); // Thay đổi URL
+        const response = await axios.get(''); // Thay đổi URL
         setProducts(response.data);
       } catch (error) {
         console.error(error);
@@ -65,7 +66,7 @@ const Home = () => {
                 resizeMode: 'cover',
                 borderRadius: 5,
               }}
-              source={require('../assets/img/imageBanner.png')}
+              source={require('../../assets/img/imageBanner.png')}
             />
           </View>
 

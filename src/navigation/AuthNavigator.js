@@ -6,7 +6,7 @@ import Login from '../screens/LoginScreen/Login'
 import Register from '../screens/RegisterScreen/Register'
 import Splash from '../screens/Splash/splash'
 import ChangePasswordScreen from '../screens/ChangePasswordScreenChangePasswordScreen/ChangePasswordScreen'
-import Home from './../HomeScreen/Home';
+import Home from '../screens/HomeScreen/Home';
 
 const AuthNavigator = () => {
     const Stack = createNativeStackNavigator()

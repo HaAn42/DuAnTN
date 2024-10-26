@@ -7,6 +7,9 @@ import Register from '../screens/RegisterScreen/Register'
 import Splash from '../screens/Splash/splash'
 import ChangePasswordScreen from '../screens/ChangePasswordScreenChangePasswordScreen/ChangePasswordScreen'
 import Home from '../screens/HomeScreen/Home';
+import LikeProduct from '../screens/LikeProductScreen/LikeProduct'
+import ButtomTab from './ButtomTab';
+import ShoppingCart from '../screens/ShoppingCartScreen/ShoppingCart'
 
 const AuthNavigator = () => {
     const Stack = createNativeStackNavigator()
@@ -17,7 +20,8 @@ const AuthNavigator = () => {
             <Stack.Screen name="Login" component={Login} options={{headerShown:false}}/>
             <Stack.Screen name="Register" component={Register} options={{headerShown:false}}/>
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{headerShown:false}}/>
-            <Stack.Screen name="Home" component={Home} options={{headerShown:false}}/>
+            <Stack.Screen name="ButtomTab"component={ButtomTab}options={{headerShown:false}}/>
+            
         </Stack.Navigator>
        </NavigationContainer>
     )

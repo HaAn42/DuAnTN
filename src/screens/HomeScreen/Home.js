@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -14,11 +14,11 @@ import axios from 'axios'; // Thêm Axios
 import Icon from 'react-native-vector-icons/Ionicons';
 import ProductItem from '../../components/ProductItem';
 
-
-const Home = () => {
+const Home = ({navigation}) => {
   const [products, setProducts] = useState([]); // Khởi tạo state cho sản phẩm
 
-  useEffect(() => {
+  {
+    /**  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(''); // Thay đổi URL
@@ -29,31 +29,38 @@ const Home = () => {
     };
     fetchProducts();
   }, []);
-
+ */
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View>
         <ScrollView>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{flexDirection: 'row'}}>
             <View style={styles.serchItem}>
               <View style={styles.iconSerch}>
                 <TouchableOpacity>
-                  <Icon name="search" size={20} color="black" style={styles.icon} />
+                  <Icon
+                    name="search"
+                    size={20}
+                    color="black"
+                    style={styles.icon}
+                  />
                 </TouchableOpacity>
               </View>
-              <View style={{ width: '80%' }}>
+              <View style={{width: '80%'}}>
                 <TextInput placeholder="Tìm kiếm" />
               </View>
             </View>
             <View>
-              <TouchableOpacity style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                style={{flexDirection: 'row'}}
+                onPress={() => navigation.navigate("ShopCart")}>
                 <Icon
-                  name="chatbubble-ellipses-outline"
+                  name="cart-outline"
                   size={24}
                   color="black"
                   style={styles.iconChatbuble}
                 />
-                <Text style={{ color: 'red', left: -4, paddingTop: 3 }}>15</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -78,17 +85,17 @@ const Home = () => {
                 height: 50,
                 borderRadius: 5,
                 marginTop: 5,
-              }}
-            ></ScrollView>
+              }}></ScrollView>
           </View>
           {/** San Pham */}
-          <View style={styles.productItem}>
+          {/**  <View style={styles.productItem}>
             <FlatList
               data={products}
               renderItem={({ item }) => <ProductItem product={item} />} // Truyền dữ liệu sản phẩm cho ProductItem
               keyExtractor={(item) => item._id} // Sử dụng _id làm key
             />
-          </View>
+          </View>*/}
+        
         </ScrollView>
       </View>
     </SafeAreaView>

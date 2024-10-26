@@ -27,8 +27,7 @@ export default BackButtonView;
 const styles = StyleSheet.create({
   
   backButton: {
-   borderColor:'gray',
-   borderWidth:1, 
+   
    width:40,
    height:40,
    justifyContent:'center',

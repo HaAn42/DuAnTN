@@ -6,12 +6,44 @@ import ChangePasswordScreen from './src/screens/ChangePasswordScreenChangePasswo
 import AuthNavigator from './src/navigation/AuthNavigator';
 import Register from './src/screens/RegisterScreen/Register';
 import Home from './src/screens/HomeScreen/Home';
+import ButtomTab from './src/navigation/ButtomTab';
+import Draw from './src/navigation/Draw';
+import ProductManagement from './src/Admin/screen/Admin/ProductManagement';
+import DetailProduct from './src/screens/DetailProductScreen/DetailProduct';
+import ShoppinCartItem from './src/components/ShoppinCartItem';
+import ProductEdit from './src/Admin/screen/ProductEdit';
+import ShoppingCart from './src/screens/ShoppingCartScreen/ShoppingCart';
+import Profiler from './src/screens/ProfilerScreen/Profiler';
+import SuccessfulPay from './src/screens/SuccessfulPayScreen/SuccessfulPay';
+import PaymentMethod from './src/screens/PaymentMethodScreen/PaymentMethod';
+import RadioButtonGroup from './src/components/RadioButton';
+import Address from './src/screens/DeliveryAddressScreen/Address';
+import Pay from './src/screens/PayScreen/Pay';
+import Setting from './src/screens/SettingScreen/Setting';
+import Notification from './src/screens/NotificationScreen/Notification';
+
+
 const App = () => {
   return (
-  <AuthNavigator/>
+ //<AuthNavigator/>
  //<Register/>
  //<ChangePasswordScreen/>
  //<Home/>
+ //<ButtomTab/>
+ //<Draw/>
+// <ProductManagement/>
+ //<DetailProduct/>
+//<ShoppinCartItem/>
+//<ProductEdit/>
+//<ShoppingCart/>
+//<Profiler/>
+//<SuccessfulPay/>
+//<RadioButtonGroup/>
+//<PaymentMethod/>
+//<Address/>
+//<Pay/>
+//<Setting/>
+<Notification/>
   )
 }
 

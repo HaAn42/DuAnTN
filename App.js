@@ -21,11 +21,13 @@ import Address from './src/screens/DeliveryAddressScreen/Address';
 import Pay from './src/screens/PayScreen/Pay';
 import Setting from './src/screens/SettingScreen/Setting';
 import Notification from './src/screens/NotificationScreen/Notification';
+import Navigation from './src/Admin/navigation/Navigation';
+import ProductItem from './src/components/ProductItem';
 
 
 const App = () => {
   return (
- //<AuthNavigator/>
+ <AuthNavigator/>
  //<Register/>
  //<ChangePasswordScreen/>
  //<Home/>
@@ -43,7 +45,8 @@ const App = () => {
 //<Address/>
 //<Pay/>
 //<Setting/>
-<Notification/>
+//<ProductItem/>
+
   )
 }
 

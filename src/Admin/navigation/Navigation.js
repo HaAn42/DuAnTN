@@ -6,7 +6,6 @@ import ProductManagement from '../screen/Admin/ProductManagement'
 import OrderManagement from '../screen/Admin/OrderManagement'
 import RevenueStatistics from '../screen/Admin/RevenueStatistics'
 import WarehouseManagement from '../screen/Admin/WarehouseManagement'
-import { rotationHandlerName } from './../../../node_modules/react-native-gesture-handler/lib/module/handlers/RotationGestureHandler';
 import ProductEdit from '../screen/ProductEdit'
 
 const Navigation = () => {
@@ -25,5 +24,3 @@ const Navigation = () => {
 }
 
 export default Navigation
-
-const styles = StyleSheet.create({})

@@ -9,7 +9,8 @@ const CusttomTextInput = ({value, onChangeText, label,secureTextEntry}) => {
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
-        placeholder={label}/>
+        placeholder={label}
+        />
       </View>
   );
 };

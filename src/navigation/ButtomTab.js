@@ -8,19 +8,28 @@ import LikeProduct from '../screens/LikeProductScreen/LikeProduct';
 import ShoppingCart from '../screens/ShoppingCartScreen/ShoppingCart';
 import Notification from '../screens/NotificationScreen/Notification';
 import Profiler from '../screens/ProfilerScreen/Profiler';
+import DetailProduct from '../screens/DetailProductScreen/DetailProduct';
+import Pay from '../screens/PayScreen/Pay';
+import SuccessfulPay from '../screens/SuccessfulPayScreen/SuccessfulPay';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => {
   return (
+    <KeyboardAvoidingView
+    style={styles.container}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  >
     <Stack.Navigator>
       <Stack.Screen
         name="HomeScreen"
         component={Home}
         options={{
           headerShown: false,
-          
+          tabBarStyle: { display: 'none' },
         }}
       />
       <Stack.Screen
@@ -28,13 +37,39 @@ const HomeStack = () => {
         component={ShoppingCart}
         options={{
           headerShown: false,
-          
+          tabBarStyle: { display: 'none' },
         }}
       />
+      <Stack.Screen
+        name="DetailProduct"  
+        component={DetailProduct}
+        options={{
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
+        }}
+      />
+      <Stack.Screen
+        name="Pay"  
+        component={Pay}
+        options={{
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
+        }}
+      />
+      <Stack.Screen
+        name="paySuccess"  
+        component={SuccessfulPay}
+        options={{
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
+        }}
+      />
+      
     </Stack.Navigator>
-    
+    </KeyboardAvoidingView>
   );
 };
+
 
 const ButtomTab = () => {
   return (
@@ -96,3 +131,11 @@ const App = () => {
 };
 
 export default App;
+const styles = StyleSheet.create({
+  container: {
+    marginVertical: 10,
+    marginTop: 10,
+    height: '100%',
+  },
+  // Thêm các style khác của bạn ở đây
+});

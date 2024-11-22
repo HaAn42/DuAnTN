@@ -7,7 +7,6 @@ import AuthNavigator from './src/navigation/AuthNavigator';
 import Register from './src/screens/RegisterScreen/Register';
 import Home from './src/screens/HomeScreen/Home';
 import ButtomTab from './src/navigation/ButtomTab';
-import Draw from './src/navigation/Draw';
 import ProductManagement from './src/Admin/screen/Admin/ProductManagement';
 import DetailProduct from './src/screens/DetailProductScreen/DetailProduct';
 import ShoppinCartItem from './src/components/ShoppinCartItem';
@@ -23,11 +22,13 @@ import Setting from './src/screens/SettingScreen/Setting';
 import Notification from './src/screens/NotificationScreen/Notification';
 import Navigation from './src/Admin/navigation/Navigation';
 import ProductItem from './src/components/ProductItem';
+import store from './src/redux/store';
+import { Provider } from 'react-redux';
 
 
 const App = () => {
   return (
- <AuthNavigator/>
+ 
  //<Register/>
  //<ChangePasswordScreen/>
  //<Home/>
@@ -46,6 +47,10 @@ const App = () => {
 //<Pay/>
 //<Setting/>
 //<ProductItem/>
+
+<Provider store={store}>
+<AuthNavigator/>
+</Provider>
 
   )
 }

@@ -1,14 +1,14 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 
-const SuccessfulPay = () => {
+const SuccessfulPay = ({navigation}) => {
   return (
     <View style={styles.container}>
-      <Text style={{fontSize: 40, color: 'black', alignSelf: 'center'}}>
-        Thành Công!
+      <Text style={{fontSize: 25, color: 'black', alignSelf: 'center'}}>
+        Đặt hàng thành công!
       </Text>
       <View style={styles.image}>
-        <Image source={require('../../assets/img/logo.png')}/>
+        <Image style={{width:150, height:150}} source={require('../../assets/img/logo.png')}/>
       </View>
       <View>
         <Text style={styles.text}>
@@ -16,7 +16,7 @@ const SuccessfulPay = () => {
           chúng tôi!
         </Text>
       </View>
-      <View>
+      <View >
         <TouchableOpacity
           style={{
             backgroundColor: 'black',
@@ -34,7 +34,8 @@ const SuccessfulPay = () => {
             alignItems: 'center',
             marginVertical: 10,
             borderRadius: 10,
-            width:300}}>
+            width:300}}
+            onPress={()=>navigation.navigate('HomeScreen')}>
           <Text style={{fontSize: 20, color: 'white'}}>Quay lại trang chủ</Text>
         </TouchableOpacity>
       </View>
@@ -48,14 +49,14 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center', // Căn giữa theo chiều ngang
     backgroundColor: 'white',
-    marginVertical:40,
+    
     flex:1,
     justifyContent:'space-evenly'
   },
   image: {
-    height: 280,
-    width: 280,
-    
+    height: 150,
+    width: 150,
+    borderWidth:1,
     alignSelf: 'center',
     
   },
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
   text: {
     color: 'black',
     fontSize: 18,
-    marginHorizontal:30,
+   
     
   },
 });

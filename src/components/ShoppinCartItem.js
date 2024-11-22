@@ -1,48 +1,67 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
-import Icon from 'react-native-vector-icons/AntDesign'; // Kiểm tra biểu tượng có tồn tại
+import Icon from 'react-native-vector-icons/Ionicons'; // Kiểm tra biểu tượng có tồn tại
 
-const ShoppinCartItem = () => {
-  const [select, setSelection] = useState(false);
-  
+const ShoppinCartItem = ({ item, handleRemoveProduct, selected, setSelection }) => {
+  const [quantity, setQuantity] = useState(item.quantity);
+
   const selecCheckBox = () => {
-    setSelection(!select);
+    setSelection(item._id); // Gửi ID của sản phẩm để cập nhật trạng thái chọn/deselect
+  };
+
+  const increaseQuantity = () => {
+    if (quantity < 30) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const decreaseQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <View style={{ alignSelf: 'center', marginHorizontal: 10, width:25}}>
+      <View style={{ alignSelf: 'center', marginHorizontal: 10, width: 25 }}>
         <TouchableOpacity onPress={selecCheckBox}>
-          <Icon name={select ? "checkcircle" : "checkcircleo"} size={20} />
+          <Icon name={selected ? "radio-button-on" : "radio-button-off"} size={20} />
         </TouchableOpacity>
       </View>
       <View>
         <Image
           style={styles.image}
-          source={require('../assets/img/produt1.png')}
+          source={require('../assets/img/produt1.png')} // Use the dynamic image URL from the product
         />
       </View>
 
       <View style={styles.itemContent}>
-        <Text style={styles.name}>IPhone 1</Text>
+        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+           <Text style={styles.name}>{item.name_pr}</Text>
+        <TouchableOpacity onPress={() => handleRemoveProduct(item._id)}>
+        <Icon name="close-outline" color="red" size={25}/>
+      </TouchableOpacity>
+        </View>
+       
         <View style={styles.configurationItem}>
           <View style={styles.configuration}>
-            <Text>128GB</Text>
+            <Text>{item.capacity}</Text>
           </View>
         </View>
         <View style={styles.quantityItem}>
-          <TouchableOpacity>
-            <Icon name="minuscircleo" size={20} />
+          <TouchableOpacity onPress={decreaseQuantity}>
+            <Icon name="remove-circle-outline" size={20} />
           </TouchableOpacity>
-          <Text style={{ color: 'black', alignSelf: 'center' }}>1</Text>
-          <TouchableOpacity>
-            <Icon name="pluscircleo" size={20} />
+          <Text style={{ color: 'black', alignSelf: 'center' }}>{quantity}</Text>
+          <TouchableOpacity onPress={increaseQuantity}>
+            <Icon name="add-circle-outline" size={20} />
           </TouchableOpacity>
         </View>
         <View style={{ justifyContent: 'space-between' }}>
-          <Text style={styles.price}>15.000.000đ</Text>
+          <Text style={styles.price}>{item.price.toLocaleString()} VND</Text>
         </View>
       </View>
+  
     </View>
   );
 };
@@ -92,6 +111,6 @@ const styles = StyleSheet.create({
     height: 30,
     width: 90,
     borderRadius: 5,
-    alignItems:'center'
+    alignItems: 'center',
   },
 });

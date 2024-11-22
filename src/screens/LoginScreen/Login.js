@@ -6,58 +6,66 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 import CusttomTextInput from '../../components/CusttomTextInput';
 import axios from 'axios';
+import {useDispatch, useSelector} from 'react-redux';
+import {loginSuccess} from '../../redux/slices/authSlice'; // Ensure you import the correct action
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Login = ({ navigation }) => {
+const Login = ({navigation}) => {
+  const dispatch = useDispatch();
+  const {isLoggedIn} = useSelector(state => state.auth); // Get login state from Redux
+
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isEmail, setEmail] = useState('');
   const [isPassword, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Hàm hiển thị/ẩn mật khẩu
+  // Toggle password visibility
   const showPassword = () => {
     setPasswordVisible(!isPasswordVisible);
   };
 
-  // Hàm xử lý đăng nhập
-  const handleLogin = async () => {
-    // Kiểm tra nếu email hoặc mật khẩu bị bỏ trống
-    if (!isEmail) {
-      setError('Vui lòng nhập email.');
-      return;
+  // Check if already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigation.navigate('ButtomTab'); // Redirect to main screen if logged in
     }
+  }, [isLoggedIn]);
 
-    if (!isPassword) {
-      setError('Vui lòng nhập mật khẩu.');
+  // Handle login logic
+  const handleLogin = async () => {
+    if (!isEmail || !isPassword) {
+      setError('Vui lòng nhập email và mật khẩu.');
       return;
     }
 
     setLoading(true);
     try {
-      // Gửi yêu cầu POST đến server
-      const response = await axios.post('http://192.168.1.38:3000/login/checklogin', {
-        email: isEmail,
-        password: isPassword,
-      });
+      const response = await axios.post(
+        'http://192.168.1.5:3000/login/checklogin',
+        {
+          email: isEmail,
+          password: isPassword,
+        },
+      );
 
-      const { token, user, message } = response.data;
+      const {token, user, message} = response.data;
 
       if (response.data.status === 200) {
-        // Lưu token và thông tin người dùng vào AsyncStorage hoặc Redux (nếu cần)
-        console.log('Đăng nhập thành công', token, user);
+        // Lưu thông tin người dùng và token vào Redux store và AsyncStorage
+        await AsyncStorage.setItem('token', token);
+        dispatch(loginSuccess({user, token}));
 
-        // Sau khi đăng nhập thành công, điều hướng đến màn hình chính
-        navigation.navigate('ButtomTab'); // Đảm bảo bạn có màn hình 'ButtomTab' trong navigator
+        // Điều hướng đến màn hình chính sau khi đăng nhập
+        navigation.navigate('ButtomTab');
       } else {
-        // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
         setError(message);
       }
     } catch (err) {
-      // Xử lý lỗi nếu email/mật khẩu không đúng
       setError(err.response?.data?.message || 'Đăng nhập thất bại');
     } finally {
       setLoading(false);
@@ -69,9 +77,9 @@ const Login = ({ navigation }) => {
       <ImageBackground
         source={require('../../assets/img/backgroud.png')}
         style={styles.container}>
-        <View style={{ marginTop: '40%' }}>
+        <View style={{marginTop: '40%'}}>
           <Text style={styles.textHeader}>Đăng nhập</Text>
-          <Text style={{ marginTop: 30, marginHorizontal: 30, fontSize: 18 }}>
+          <Text style={{marginTop: 30, marginHorizontal: 30, fontSize: 18}}>
             Rất vui được gặp bạn!
           </Text>
 
@@ -83,38 +91,29 @@ const Login = ({ navigation }) => {
               marginHorizontal: '8%',
               justifyContent: 'space-between',
             }}>
-            {/* Input Email */}
-            <Text style={{ color: 'black' }}>Email</Text>
+            <Text style={{color: 'black'}}>Email</Text>
             <View style={styles.itemInput}>
               <View style={styles.icon}>
                 <Icon name="mail" color="black" size={24} />
               </View>
-              <View>
-                <CusttomTextInput
-                  value={isEmail}
-                  onChangeText={setEmail}
-                  label="Nhập email:"
-                  
-                />
-              </View>
+              <CusttomTextInput
+                value={isEmail}
+                onChangeText={setEmail}
+                label="Nhập email:"
+              />
             </View>
 
-            {/* Input Password */}
-            <Text style={{ color: 'black' }}>Mật khẩu</Text>
+            <Text style={{color: 'black'}}>Mật khẩu</Text>
             <View style={styles.itemInput}>
               <View style={styles.icon}>
                 <Icon name="lock" color="black" size={24} />
               </View>
-
-              <View>
-                <CusttomTextInput
-                  value={isPassword}
-                  onChangeText={setPassword}
-                  label="Nhập mật khẩu:"
-                  secureTextEntry={!isPasswordVisible}
-                />
-              </View>
-
+              <CusttomTextInput
+                value={isPassword}
+                onChangeText={setPassword}
+                label="Nhập mật khẩu:"
+                secureTextEntry={!isPasswordVisible}
+              />
               <TouchableOpacity style={styles.iconEye} onPress={showPassword}>
                 <Icon
                   name={isPasswordVisible ? 'eye-off' : 'eye'}
@@ -124,31 +123,41 @@ const Login = ({ navigation }) => {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{alignItems:'flex-end',marginHorizontal:25, marginVertical:10}}>
-              {/**quen mat khau */}
-              <TouchableOpacity onPress={()=> navigation.navigate('ChangePassword')}>
-                <Text style={{color: '#FF622E'}}>Quên mật khẩu!</Text>
-              </TouchableOpacity>
-            </View>
+
+          {/* Forgot Password Link */}
+          <View
+            style={{
+              alignItems: 'flex-end',
+              marginHorizontal: 25,
+              marginVertical: 10,
+            }}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ChangePassword')}>
+              <Text style={{color: '#FF622E'}}>Quên mật khẩu!</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Login Button */}
           <View style={styles.itemButton}>
             <TouchableOpacity
               style={styles.button}
               onPress={handleLogin}
               disabled={loading}>
-              <Text style={{ fontSize: 25, color: 'white' }}>
+              <Text style={{fontSize: 25, color: 'white'}}>
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Text>
             </TouchableOpacity>
 
-            {/* Hiển thị thông báo lỗi nếu có */}
-            {error ? <Text style={{ color: 'red', textAlign: 'center' }}>{error}</Text> : null}
+            {/* Display error message if any */}
+            {error ? (
+              <Text style={{color: 'red', textAlign: 'center'}}>{error}</Text>
+            ) : null}
 
             {/* Register Link */}
-            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
               <Text>Nếu chưa có tài khoản!</Text>
               <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={{ color: 'blue' }}> Đăng ký</Text>
+                <Text style={{color: 'blue'}}> Đăng ký</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -157,8 +166,6 @@ const Login = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-export default Login;
 
 const styles = StyleSheet.create({
   container: {
@@ -199,3 +206,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 });
+
+export default Login;

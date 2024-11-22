@@ -2,7 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 
-const Profiler = () => {
+const Profiler = ({navigation}) => {
   return (
     <View>
       {/**Header */}
@@ -13,7 +13,7 @@ const Profiler = () => {
           </Text>
         </View>
         <View>
-          <TouchableOpacity>
+         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <Icon name="log-out" size={25} style={styles.icon} />
           </TouchableOpacity>
         </View>

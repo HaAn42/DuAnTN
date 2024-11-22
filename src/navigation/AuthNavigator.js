@@ -1,32 +1,56 @@
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { NavigationContainer } from '@react-navigation/native'
-import Login from '../screens/LoginScreen/Login'
-import Register from '../screens/RegisterScreen/Register'
-import Splash from '../screens/Splash/splash'
-import ChangePasswordScreen from '../screens/ChangePasswordScreenChangePasswordScreen/ChangePasswordScreen'
-import Home from '../screens/HomeScreen/Home';
-import LikeProduct from '../screens/LikeProductScreen/LikeProduct'
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import Splash from '../screens/Splash/splash';
+import Login from '../screens/LoginScreen/Login';
+import Register from '../screens/RegisterScreen/Register';
+import ChangePasswordScreen from '../screens/ChangePasswordScreenChangePasswordScreen/ChangePasswordScreen';
 import ButtomTab from './ButtomTab';
-import ShoppingCart from '../screens/ShoppingCartScreen/ShoppingCart'
+import { checkLoginStatus } from '../redux/slices/authSlice';
 
 const AuthNavigator = () => {
-    const Stack = createNativeStackNavigator()
-    return (
-       <NavigationContainer>
-        <Stack.Navigator initialRouteName='Splash'>
-            <Stack.Screen name="Splash" component={Splash} options={{headerShown:false}}/>
-            <Stack.Screen name="Login" component={Login} options={{headerShown:false}}/>
-            <Stack.Screen name="Register" component={Register} options={{headerShown:false}}/>
-            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{headerShown:false}}/>
-            <Stack.Screen name="ButtomTab"component={ButtomTab}options={{headerShown:false}}/>
-            
-        </Stack.Navigator>
-       </NavigationContainer>
-    )
-}
+  const Stack = createNativeStackNavigator();
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn); // Kiểm tra trạng thái đăng nhập từ Redux
 
-export default AuthNavigator
+  // Kiểm tra trạng thái đăng nhập khi AuthNavigator được load
+  useEffect(() => {
+    dispatch(checkLoginStatus()); // Kiểm tra token từ AsyncStorage
+  }, [dispatch]);
 
-const styles = StyleSheet.create({})
+  return (
+    
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName={isLoggedIn ? 'ButtomTab' : 'Splash'}>
+        <Stack.Screen
+          name="Splash"
+          component={Splash}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Register"
+          component={Register}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ChangePassword"
+          component={ChangePasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ButtomTab"
+          component={ButtomTab}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default AuthNavigator;

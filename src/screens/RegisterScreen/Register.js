@@ -34,7 +34,7 @@ const Register = ({ navigation }) => {
 
   // Validate password strength
   const validatePassword = (password) => {
-    return password.length >= 8; // Basic validation, you can enhance it
+    return password.length >= 5; // Basic validation, you can enhance it
   };
 
   const handleRegister = async () => {
@@ -63,7 +63,7 @@ const Register = ({ navigation }) => {
     setError(''); // Clear any previous error
 
     try {
-      const response = await axios.post('http://192.168.1.38:3000/users/add', {
+      const response = await axios.post('http://192.168.1.5:3000/users/add', {
         username,
         email,
         password: isPassword,

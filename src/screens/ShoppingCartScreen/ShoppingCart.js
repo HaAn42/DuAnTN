@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,41 +6,65 @@ import {
   TouchableOpacity,
   View,
   FlatList,
-  Alert, // Thêm Alert để hiển thị thông báo
+  Alert,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { removeProductFromCart } from '../../redux/slices/cartSlice';
+import {
+  removeProductFromCart,
+  setCartItems,
+} from '../../redux/slices/cartSlice';
 import ShoppinCartItem from '../../components/ShoppinCartItem';
+import axios from 'axios'; // Assuming you're using axios for API requests
 
-const ShoppingCart = ({ navigation }) => {
-  const [selectAll, setSelectAll] = useState(false); // Theo dõi trạng thái "Chọn tất cả"
-  const [selectedItems, setSelectedItems] = useState({}); // Theo dõi trạng thái chọn của từng sản phẩm
+const ShoppingCart = ({navigation}) => {
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedItems, setSelectedItems] = useState({});
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const cartProducts = useSelector(state => state.cart.cartItems);
   const dispatch = useDispatch();
 
-  // Khởi tạo tổng giá trị của giỏ hàng
-  const [totalPrice, setTotalPrice] = useState(0);
+  const userId = useSelector(state => state.user.id);
 
-  // Hàm cập nhật tổng giá trị giỏ hàng
+  // Fetch cart data from the server on component mount
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (userId) {
+        try {
+          const response = await axios.get(
+            `http://192.168.1.142:3000/cart/list/${userId}`,
+          );
+          dispatch(setCartItems(response.data)); // Lưu vào Redux
+        } catch (error) {
+          console.error('Error fetching cart data:', error);
+        }
+      }
+    };
+
+    fetchCart();
+  }, [userId, dispatch]);
+
+  // Calculate total price based on selected items
   const updateTotalPrice = () => {
     const newTotalPrice = cartProducts.reduce((total, item) => {
       if (selectedItems[item._id] === true) {
-        // Chỉ cộng giá của những sản phẩm đã chọn
         return total + item.price * item.quantity;
       }
       return total;
     }, 0);
-    setTotalPrice(newTotalPrice); // Cập nhật tổng giá trị
+    setTotalPrice(newTotalPrice); // Cập nhật state totalPrice
   };
 
-  // Khi người dùng nhấn "Chọn tất cả"
+  useEffect(() => {
+    updateTotalPrice();
+  }, [selectedItems, cartProducts]); // Cập nhật totalPrice khi selectedItems hoặc cartProducts thay đổi
+
+  // Handle select all items
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
     setSelectAll(newSelectAll);
 
-    // Cập nhật trạng thái chọn của tất cả các sản phẩm
     const updatedSelectedItems = {};
     cartProducts.forEach(item => {
       updatedSelectedItems[item._id] = newSelectAll;
@@ -48,52 +72,40 @@ const ShoppingCart = ({ navigation }) => {
     setSelectedItems(updatedSelectedItems);
   };
 
-  // Khi người dùng chọn hoặc bỏ chọn một sản phẩm
+  // Handle individual item selection
   const handleSelectItem = productId => {
-    const updatedSelectedItems = { ...selectedItems };
+    const updatedSelectedItems = {...selectedItems};
     updatedSelectedItems[productId] = !updatedSelectedItems[productId];
     setSelectedItems(updatedSelectedItems);
   };
 
-  // Kiểm tra xem tất cả các sản phẩm đã được chọn hay chưa
-  const checkAllSelected = () => {
-    return cartProducts.every(item => selectedItems[item._id] === true);
-  };
-
-  useEffect(() => {
-    updateTotalPrice(); // Cập nhật tổng giá khi thay đổi lựa chọn
-  }, [selectedItems, cartProducts]); // Cập nhật khi thay đổi lựa chọn hoặc giỏ hàng
-
-  const handleRemoveProduct = productId => {
-    dispatch(removeProductFromCart(productId));
-  };
-
-  const renderItem = ({ item }) => (
-    <ShoppinCartItem
-      item={item}
-      handleRemoveProduct={handleRemoveProduct}
-      selected={selectedItems[item._id]} // Truyền trạng thái chọn của sản phẩm
-      setSelection={handleSelectItem} // Xử lý chọn/bỏ chọn sản phẩm
-    />
-  );
-
-  const handleNavigateToPay = () => {
-    // Lọc ra các sản phẩm đã chọn
-    const selectedProducts = cartProducts.filter(item => selectedItems[item._id] === true);
-
-    if (selectedProducts.length === 0) {
-      // Nếu không có sản phẩm nào được chọn, hiển thị thông báo
-      Alert.alert('Thông báo', 'Vui lòng chọn sản phẩm cần thanh toán!', [
-        { text: 'OK' },
-      ]);
-    } else {
-      // Điều hướng tới màn hình Thanh toán và truyền các sản phẩm đã chọn và tổng giá trị
-      navigation.navigate('Pay', {
-        products: selectedProducts,
-        totalPrice: totalPrice,
-      });
+  // Handle product removal
+  const handleRemoveProduct = async productId => {
+    try {
+      dispatch(removeProductFromCart(productId));
+      console.log('Product ID:', productId); // Kiểm tra giá trị productId
+      await axios.delete(`http://192.168.1.212:3000/cart/remove/${productId}`);
+    } catch (error) {
+      console.error('Error removing product from cart:', error);
     }
   };
+
+  // Navigate to payment screen
+  const handleNavigateToPay = () => {
+    const selectedProducts = cartProducts.filter(
+      item => selectedItems[item._id] === true,
+    );
+    if (selectedProducts.length === 0) {
+      Alert.alert('Thông báo', 'Vui lòng chọn sản phẩm cần thanh toán!', [
+        {text: 'OK'},
+      ]);
+    } else {
+      navigation.navigate('Pay', {products: selectedProducts, totalPrice});
+    }
+  };
+
+  // Check if cart is empty
+  const isCartEmpty = cartProducts.length === 0;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -101,42 +113,68 @@ const ShoppingCart = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="chevron-back" size={25} color="black" />
         </TouchableOpacity>
-        <View style={{ flex: 1, alignItems: 'center' }}>
+        <View style={{flex: 1, alignItems: 'center'}}>
           <Text style={styles.title}>Giỏ hàng</Text>
         </View>
       </View>
 
-      <FlatList
-        data={cartProducts}
-        renderItem={renderItem}
-        keyExtractor={item => item._id}
-      />
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity
-            onPress={handleSelectAll}
-            style={{ marginEnd: 5, marginHorizontal: 5 }}>
-            <Icon
-              name={checkAllSelected() ? 'checkbox' : 'checkbox-outline'}
-              size={20}
-            />
-          </TouchableOpacity>
-          <Text>Chọn tất cả</Text>
-        </View>
-        <View>
-          <Text style={{ color: 'black' }}>
-            Giá: {totalPrice.toLocaleString()} VND
+      {isCartEmpty ? (
+        <View style={styles.emptyCartContainer}>
+          <Text style={styles.emptyCartText}>
+            Giỏ hàng của bạn hiện đang trống.
           </Text>
         </View>
-        <View>
-          <TouchableOpacity style={styles.button} onPress={handleNavigateToPay}>
-            <Text style={{ color: 'white' }}>
-              Thanh toán ({cartProducts.filter(item => selectedItems[item._id] === true).length})
-            </Text>
-          </TouchableOpacity>
-        </View>
+      ) : (
+        <FlatList
+          data={cartProducts}
+          renderItem={({item}) => (
+            <ShoppinCartItem
+              item={item}
+              handleRemoveProduct={handleRemoveProduct}
+              selected={selectedItems[item._id]}
+              setSelection={handleSelectItem}
+            />
+          )}
+          keyExtractor={item => item._id}
+        />
+      )}
+
+      <View style={styles.footer}>
+        {!isCartEmpty && (
+          <>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity
+                onPress={handleSelectAll}
+                style={{marginEnd: 5, marginHorizontal: 5}}>
+                <Icon
+                  name={selectAll ? 'checkbox' : 'checkbox-outline'}
+                  size={20}
+                />
+              </TouchableOpacity>
+              <Text>Chọn tất cả</Text>
+            </View>
+            <View>
+              <Text style={{color: 'black'}}>
+                Giá: {totalPrice.toLocaleString()} VND
+              </Text>
+            </View>
+            <View>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleNavigateToPay}>
+                <Text style={{color: 'white'}}>
+                  Thanh toán (
+                  {
+                    cartProducts.filter(
+                      item => selectedItems[item._id] === true,
+                    ).length
+                  }
+                  )
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -161,10 +199,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
   },
-  editText: {
-    fontSize: 16,
-    color: 'blue',
-  },
   footer: {
     marginHorizontal: 20,
     height: 60,
@@ -182,5 +216,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyCartContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyCartText: {
+    fontSize: 18,
+    color: 'gray',
   },
 });

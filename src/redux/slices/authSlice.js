@@ -3,9 +3,9 @@ import { createSlice } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const initialState = {
-  isLoggedIn: false,
   user: null,
   token: null,
+  isLoggedIn: false, // Trạng thái mặc định là chưa đăng nhập
 };
 
 const authSlice = createSlice({
@@ -13,29 +13,18 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     loginSuccess: (state, action) => {
-      state.isLoggedIn = true;
       state.user = action.payload.user;
       state.token = action.payload.token;
-
-      // Lưu thông tin người dùng vào AsyncStorage khi đăng nhập thành công
-      saveUserData(action.payload.user, action.payload.token);
+      state.isLoggedIn = true; // Đánh dấu là đã đăng nhập
     },
     logout: (state) => {
-      state.isLoggedIn = false;
       state.user = null;
       state.token = null;
-
-      // Xóa thông tin người dùng và token khỏi AsyncStorage khi logout
-      AsyncStorage.removeItem('token');
-      AsyncStorage.removeItem('user');
-    },
-    setLoginStatus: (state, action) => {
-      state.isLoggedIn = action.payload.isLoggedIn;
-      state.token = action.payload.token || null;
-      state.user = action.payload.user || null;
+      state.isLoggedIn = false;
     },
   },
 });
+
 
 // Hàm lưu thông tin người dùng vào AsyncStorage
 const saveUserData = async (user, token) => {

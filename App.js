@@ -24,6 +24,9 @@ import Navigation from './src/Admin/navigation/Navigation';
 import ProductItem from './src/components/ProductItem';
 import store from './src/redux/store';
 import { Provider } from 'react-redux';
+import CodeMail from './src/screens/CodeMail';
+
+
 
 
 const App = () => {
@@ -48,10 +51,10 @@ const App = () => {
 //<Setting/>
 //<ProductItem/>
 
-<Provider store={store}>
-<AuthNavigator/>
-</Provider>
-
+  <Provider store={store}>
+  <AuthNavigator/>
+  </Provider>
+//<CodeMail/>
   )
 }
 

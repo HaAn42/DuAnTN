@@ -10,21 +10,18 @@ const Register = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [isPassword, setPassword] = useState('');
-  const [RePassword, setRePassword] = useState('');
   const [role, setRole] = useState('user');
-  const [isRePasswordVisible, setRePasswordVisible] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const showPassword = () => setPasswordVisible(!isPasswordVisible);
-  const showRePassword = () => setRePasswordVisible(!isRePasswordVisible);
 
   // Clear error message when the user starts typing
   useEffect(() => {
     if (error) {
       setError('');
     }
-  }, [username, email, isPassword, RePassword]);
+  }, [username, email, isPassword]);
 
   // Validate email format
   const validateEmail = (email) => {
@@ -39,13 +36,8 @@ const Register = ({ navigation }) => {
 
   const handleRegister = async () => {
     // Validate fields
-    if (!username || !email || !isPassword || !RePassword) {
+    if (!username || !email || !isPassword) {
       setError("Vui lòng điền đầy đủ thông tin.");
-      return;
-    }
-
-    if (isPassword !== RePassword) {
-      setError("Mật khẩu nhập lại không khớp.");
       return;
     }
 
@@ -63,7 +55,7 @@ const Register = ({ navigation }) => {
     setError(''); // Clear any previous error
 
     try {
-      const response = await axios.post('http://192.168.1.5:3000/users/add', {
+      const response = await axios.post('http://192.168.1.229:3000/users/add', {
         username,
         email,
         password: isPassword,
@@ -85,15 +77,15 @@ const Register = ({ navigation }) => {
   return (
     <ScrollView>
       <ImageBackground source={require('../../assets/img/backgroud.png')} style={styles.container}>
-        <View style={{ marginTop: '40%' }}>
+        <View style={{ marginTop: '20%' }}>
           <Text style={styles.textHeader}>Đăng ký</Text>
 
           {/* Display error message */}
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           {/* Input Fields */}
-          <View style={{ marginTop: 30, marginHorizontal: '8%', height: '60%', justifyContent: 'space-between' }}>
-            
+          <View style={{ marginTop: 30, height: '60%', justifyContent: 'space-between' }}>
+
             {/* Input Tên đăng nhập */}
             <Text style={styles.text}>Tên đăng nhập</Text>
             <View style={styles.itemInput}>
@@ -105,6 +97,7 @@ const Register = ({ navigation }) => {
                   value={username}
                   onChangeText={setUsername}
                   label="Tên đăng nhập"
+                  style={styles.input}
                 />
               </View>
             </View>
@@ -120,12 +113,14 @@ const Register = ({ navigation }) => {
                   value={email}
                   onChangeText={setEmail}
                   label="Nhập email"
+                  style={styles.input}
                 />
               </View>
             </View>
 
             {/* Input Mật khẩu */}
-            <Text style={styles.text}>Mật khẩu</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.text}>Mật khẩu</Text>
             <View style={styles.itemInput}>
               <View style={styles.icon}>
                 <Icon name="lock" color="black" size={24} />
@@ -136,6 +131,7 @@ const Register = ({ navigation }) => {
                   onChangeText={setPassword}
                   label="Nhập mật khẩu"
                   secureTextEntry={!isPasswordVisible}
+                  style={styles.input}
                 />
               </View>
               <TouchableOpacity style={styles.iconEye} onPress={showPassword}>
@@ -143,25 +139,8 @@ const Register = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Input Nhập lại mật khẩu */}
-            <Text style={styles.text}>Nhập lại mật khẩu</Text>
-            <View style={styles.itemInput}>
-              <View style={styles.icon}>
-                <Icon name="lock" color="black" size={24} />
-              </View>
-              <View>
-                <CusttomTextInput
-                  value={RePassword}
-                  onChangeText={setRePassword}
-                  label="Nhập lại mật khẩu"
-                  secureTextEntry={!isRePasswordVisible}
-                />
-              </View>
-              <TouchableOpacity style={styles.iconEye} onPress={showRePassword}>
-                <Icon name={isRePasswordVisible ? 'eye-off' : 'eye'} color="black" size={24} />
-              </TouchableOpacity>
             </View>
-
+            
             {/* Chọn vai trò */}
             <Text style={styles.text}>Chọn vai trò</Text>
             <View style={styles.itemInput}>
@@ -209,27 +188,47 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontWeight: '500',
   },
-  text: {
-    color: 'black',
+  inputContainer: {
+    
   },
   itemInput: {
     height: 50,
     borderColor: 'black',
-    borderWidth: 1,
     flexDirection: 'row',
     borderRadius: 5,
+    alignItems: 'center',
+    borderWidth: 1,
+    marginHorizontal: 20,
+    marginBottom: 15,
+    width:"90%",
+    
   },
   icon: {
     justifyContent: 'center',
-    marginLeft: 10,
+    marginStart: 5,
+    
   },
   iconEye: {
-    justifyContent: 'center',
-    marginHorizontal: -5,
+    alignItems: 'flex-end',
+    flex:1,
+    marginRight:5
+    
   },
+  input: {
+    flex: 1,
+    height: 40, // Adjust height as needed
+    width:220
+    
+  },
+  
   itemButton: {
     justifyContent: 'space-evenly',
     height: 170,
+  },
+  text: {
+    marginBottom:10,
+    color: 'black',
+    marginHorizontal: 20,
   },
   button: {
     height: 50,

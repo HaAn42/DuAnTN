@@ -1,8 +1,8 @@
-// Sửa lại phần của màn hình Home:
-
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import {
+  Alert,
+  BackHandler,
   FlatList,
   Image,
   SafeAreaView,
@@ -16,17 +16,21 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
 } from 'react-native';
-
 import Icon from 'react-native-vector-icons/Ionicons';
+import Toast from 'react-native-toast-message'; // Import Toast
 
 const Home = ({ navigation }) => {
-  const [searchQuery, setSearchQuery] = useState(''); // Trạng thái cho query tìm kiếm
-  const [products, setProducts] = useState([]); // Sản phẩm từ API
-  const [filteredProducts, setFilteredProducts] = useState([]); // Sản phẩm đã lọc theo tìm kiếm
-  const [brands, setBrands] = useState([]); // Thêm state cho danh sách thương hiệu
+  const [backPressedOnce, setBackPressedOnce] = useState(false); // State để theo dõi nhấn back lần đầu
+  const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedBrandId, setSelectedBrandId] = useState('all'); // Default to 'all'
+  const [refreshing, setRefreshing] = useState(false);
   const scrollViewRef = useRef();
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -38,6 +42,34 @@ const Home = ({ navigation }) => {
   ];
 
   const screenWidth = Dimensions.get('window').width;
+
+  // Xử lý sự kiện back khi người dùng nhấn 2 lần liên tiếp
+  useEffect(() => {
+    const backAction = () => {
+      if (backPressedOnce) {
+        // Nếu nhấn back lần thứ 2 trong vòng 2 giây, thoát ứng dụng
+        BackHandler.exitApp();
+      } else {
+        // Hiển thị Toast thay vì Alert
+        setBackPressedOnce(true);
+        Toast.show({
+          type: 'info',
+          position: 'bottom',
+          text1: 'Nhấn lại lần nữa để thoát ứng dụng',
+          visibilityTime: 2000,
+        });
+
+        // Reset lại trạng thái sau 2 giây nếu không nhấn back lần thứ 2
+        setTimeout(() => setBackPressedOnce(false), 2000);
+      }
+      return true; // Ngăn ngừa hành động back mặc định
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    // Cleanup khi component unmount
+    return () => backHandler.remove();
+  }, [backPressedOnce]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -57,57 +89,81 @@ const Home = ({ navigation }) => {
   }, [currentIndex]);
 
   useEffect(() => {
-    // Lấy danh sách thương hiệu
-    axios.get('http://192.168.1.5:3000/brand/list')
-      .then(response => {
-        setBrands(response.data.data); // Lưu thương hiệu vào state
-      })
-      .catch(error => {
-        setError('Có lỗi xảy ra khi lấy danh sách thương hiệu.');
-      });
+    const fetchData = async () => {
+      try {
+        // Lấy danh sách các thương hiệu
+        const brandResponse = await axios.get('http://192.168.1.229:3000/brand/list');
+        setBrands(brandResponse.data.data);
 
-    // Lấy danh sách sản phẩm
-    axios.get('http://192.168.1.5:3000/product/list')
-      .then(response => {
-        setProducts(response.data.data); // Lưu sản phẩm vào state
-        setFilteredProducts(response.data.data); // Ban đầu hiển thị tất cả sản phẩm
+        // Lấy danh sách các sản phẩm
+        const productResponse = await axios.get('http://192.168.1.229:3000/product/list');
+        setProducts(productResponse.data.data);
+        setFilteredProducts(productResponse.data.data);
         setLoading(false);
+        setRefreshing(false);
+      } catch (error) {
+        setError('Có lỗi xảy ra khi lấy dữ liệu.');
+        setLoading(false);
+        setRefreshing(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const fetchProducts = () => {
+    axios.get('http://192.168.1.229:3000/product/list')
+      .then(response => {
+        setProducts(response.data.data);
+        setFilteredProducts(response.data.data);
+        setLoading(false);
+        setRefreshing(false);
       })
       .catch(error => {
         setError('Có lỗi xảy ra khi lấy dữ liệu.');
         setLoading(false);
+        setRefreshing(false);
       });
-  }, []);
+  };
 
-  // Hàm tìm kiếm sản phẩm
+  const handleBrandClick = (brandId) => {
+    setSelectedBrandId(brandId);
+
+    if (brandId === 'all') {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(product => product.brand_id === brandId);
+      setFilteredProducts(filtered);
+    }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setSelectedBrandId('all'); // Set the brand filter back to "All" when refreshing
+    fetchProducts();
+  };
+
   const handleSearch = (query) => {
-    setSearchQuery(query); // Cập nhật giá trị tìm kiếm
+    setSearchQuery(query);
+
+    let filtered = products;
 
     if (query) {
-      const filtered = products.filter(product =>
-        product.name_pr.toLowerCase().includes(query.toLowerCase()) // Kiểm tra sản phẩm theo tên
+      filtered = filtered.filter(product =>
+        product.name_pr.toLowerCase().includes(query.toLowerCase())
       );
-      setFilteredProducts(filtered); // Cập nhật danh sách sản phẩm đã lọc
-    } else {
-      setFilteredProducts(products); // Hiển thị tất cả sản phẩm nếu không có từ khóa tìm kiếm
     }
+
+    if (selectedBrandId && selectedBrandId !== 'all') {
+      filtered = filtered.filter(product => product.brand_id === selectedBrandId);
+    }
+
+    setFilteredProducts(filtered);
   };
 
   const handleClearSearch = () => {
-    setSearchQuery(''); // Xóa nội dung trong ô tìm kiếm
-    setFilteredProducts(products); // Hiển thị tất cả sản phẩm
-  };
-
-  // Hàm xử lý khi click vào một brand
-  const handleBrandClick = (brandId) => {
-    if (brandId === 'all') {
-      // Nếu chọn 'All', hiển thị tất cả sản phẩm
-      setFilteredProducts(products);
-    } else {
-      // Lọc sản phẩm theo thương hiệu
-      const filtered = products.filter(product => product.brand === brandId);
-      setFilteredProducts(filtered);
-    }
+    setSearchQuery('');
+    setFilteredProducts(products);
   };
 
   return (
@@ -116,7 +172,6 @@ const Home = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SafeAreaView style={styles.container}>
-        {/* Search and Cart */}
         <View style={{ flexDirection: 'row' }}>
           <View style={styles.serchItem}>
             <View style={styles.iconSerch}>
@@ -126,7 +181,7 @@ const Home = ({ navigation }) => {
               <TextInput
                 placeholder="Tìm kiếm"
                 value={searchQuery}
-                onChangeText={handleSearch} // Gọi handleSearch mỗi khi giá trị thay đổi
+                onChangeText={handleSearch}
                 style={{ paddingLeft: 10 }}
               />
             </View>
@@ -151,7 +206,6 @@ const Home = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Banner */}
         <View style={styles.bannerContainer}>
           <ScrollView
             horizontal
@@ -167,18 +221,31 @@ const Home = ({ navigation }) => {
             ))}
           </ScrollView>
         </View>
-     
-        {/* Error Message */}
+
+        <View style={styles.brandMenu}>
+          <FlatList
+            data={[{ _id: 'all', name: 'All' }, ...brands]}
+            horizontal
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={[styles.brandItem, selectedBrandId === item._id && styles.selectedBrand]}
+                onPress={() => handleBrandClick(item._id)}
+              >
+                <Text style={styles.brandName}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={item => item._id.toString()}
+          />
+        </View>
+
         {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* Loading Spinner */}
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />
         ) : (
           <View style={styles.productItem}>
-            {/* Hiển thị danh sách sản phẩm đã lọc */}
             <FlatList
-              data={filteredProducts} // Dữ liệu hiển thị là danh sách đã lọc
+              data={filteredProducts}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.item}
@@ -186,14 +253,14 @@ const Home = ({ navigation }) => {
                 >
                   <View style={{ height: 120, width: 150, marginTop: 10 }}>
                     <Image
-                      source={require('../../assets/img/produt1.png')}
-                      style={{ width: 90, height: '100%', resizeMode: 'cover', alignSelf:'center'}}
+                      source={{ uri: item.image_url[0] }}
+                      style={{ width: 90, height: '100%', resizeMode: 'cover', alignSelf: 'center' }}
                     />
                   </View>
                   <View>
                     <Text style={styles.name}>{item.name_pr}</Text>
                     <Text style={styles.price}>
-                      {item.price ? `$${item.price}` : 'Liên hệ'}
+                      {item.price ? `${item.price}.vnd` : 'Liên hệ'}
                     </Text>
                     <TouchableOpacity>
                       <Text style={styles.capacity}>{item.capacity}</Text>
@@ -207,6 +274,9 @@ const Home = ({ navigation }) => {
               keyExtractor={item => item._id.toString()}
               numColumns={2}
               columnWrapperStyle={styles.columnWrapper}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
             />
           </View>
         )}
@@ -221,7 +291,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     height: '100%',
   },
-  // Các style khác ...
   serchItem: {
     backgroundColor: '#E5E5E5',
     height: 45,
@@ -234,7 +303,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 35,
   },
-  
   iconChatbuble: {
     height: 50,
     width: 24,
@@ -255,29 +323,35 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 5,
   },
-  brandItem:{
-    height:30,
+  brandItem: {
+    borderRadius: 8,
+    paddingHorizontal: 5,
   },
-  brandName:{
-    fontSize:20
+  brandName: {
+    fontSize: 15,
+    padding: 5,
+  },
+  selectedBrand: {
+    borderBottomWidth: 2,
+    borderBottomColor: 'gray',
+  },
+  brandMenu: {
+    height: 30,
+    marginTop: 5,
+    alignSelf: 'center',
   },
   image: {
     height: 150,
     width: Dimensions.get('window').width,
   },
   productItem: {
-    marginTop: 10,
-    height: '65%',
+    marginBottom: 5,
+    height: '62%',
   },
   errorText: {
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
-  },
-  brandMenu:{
-    height:90,
-    borderWidth:1,
-    marginTop:10
   },
   loading: {
     marginTop: 20,

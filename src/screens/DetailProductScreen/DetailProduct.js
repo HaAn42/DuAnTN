@@ -73,7 +73,7 @@ const DetailProduct = ({route, navigation}) => {
             height: 350,
           }}>
           <Image
-            source={require('../../assets/img/produt1.png')} // Hiển thị ảnh sản phẩm
+            source={{uri: product.image_url[0]}} // Hiển thị ảnh sản phẩm
             style={{alignSelf: 'center', width: 240, height: 340}}
           />
         </View>
